@@ -1,130 +1,269 @@
-<!-- Updated index.html with full login modal and Get Started button -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Cobraz - The Future of Currency</title>
-  <link rel="stylesheet" href="/css/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cobraz</title>
+  <style>
+    :root {
+      --neon-blue: #00f3ff;
+      --neon-pink: #ff00ff;
+      --neon-purple: #9d00ff;
+      --dark-space: #0a0a1a;
+      --space-gray: #1a1a2e;
+      --glow-effect: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-pink);
+      --text-glow: 0 0 5px rgba(0, 243, 255, 0.7);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--dark-space);
+      color: white;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+      padding: 1rem 2rem;
+      background: var(--space-gray);
+      box-shadow: var(--glow-effect);
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 1rem;
+      transition: all 0.3s ease-in-out;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: 2px solid var(--neon-blue);
+      color: var(--neon-blue);
+      font-size: 1.4rem;
+      border-radius: 5px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--space-gray);
+      border: 1px solid var(--neon-blue);
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      color: white;
+      text-align: center;
+      box-shadow: var(--glow-effect);
+    }
+
+    .modal-tabs {
+      display: flex;
+      margin-bottom: 1rem;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .modal-tabs button {
+      background: none;
+      border: none;
+      color: var(--neon-blue);
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.5rem 1rem;
+      border-bottom: 2px solid transparent;
+    }
+
+    .modal-tabs button.active {
+      border-color: var(--neon-blue);
+      color: var(--neon-pink);
+    }
+
+    .modal form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .modal form input {
+      padding: 0.6rem;
+      border: 1px solid var(--neon-blue);
+      border-radius: 5px;
+      background: rgba(255,255,255,0.05);
+      color: white;
+    }
+
+    .modal form button {
+      padding: 0.6rem;
+      border: none;
+      background: var(--neon-blue);
+      color: var(--dark-space);
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .modal .google-signin {
+      background: white;
+      color: #333;
+      padding: 0.6rem;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+        flex-direction: column;
+        background-color: rgba(10, 10, 26, 0.9);
+        position: absolute;
+        top: 80px;
+        right: 5%;
+        border: 1px solid var(--neon-blue);
+        padding: 1rem;
+        border-radius: 10px;
+        z-index: 99;
+      }
+
+      nav ul.show {
+        display: flex;
+      }
+
+      .hamburger {
+        display: block;
+      }
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .page-section {
+      padding: 2rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="neon-background"></div>
   <header>
-    <div class="logo" onclick="window.location.href='/dashboard.html'">
-      <img src="/images/cobraz-coin.png" alt="Cobraz Coin" />
-      <h1>COBRAZ</h1>
-    </div>
     <nav>
-      <button id="loginBtn">Login with Google</button>
-      <button id="openEmailLogin">Login with Email</button>
+      <div class="logo" style="font-size:1.5rem;font-weight:bold;color:var(--neon-blue);">Cobraz</div>
+      <button class="hamburger" onclick="toggleMenu()">☰</button>
+      <ul id="menu">
+        <li><a href="#dashboard" onclick="showPage('dashboard')">Dashboard</a></li>
+        <li><a href="#send" onclick="showPage('send')">Send</a></li>
+        <li><a href="#receive" onclick="showPage('receive')">Receive</a></li>
+        <li><a href="#history" onclick="showPage('history')">History</a></li>
+        <li><a href="#leaderboard" onclick="showPage('leaderboard')">Leaderboard</a></li>
+      </ul>
+      <button onclick="openModal()" style="margin-left:auto;background:var(--neon-pink);color:white;padding:0.5rem 1rem;border:none;border-radius:5px;cursor:pointer;">Get Started</button>
     </nav>
   </header>
 
-  <main>
-    <section class="hero">
-      <h2>Send. Receive. Dominate.</h2>
-      <p>The most advanced virtual currency system.</p>
-      <button id="getStartedBtn" class="pulse-btn">Get Started</button>
-    </section>
-  </main>
-
-  <!-- Login Modal -->
-<div id="loginModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeModal">&times;</span>
-    <h3>Login or Create Account</h3>
-
-    <form id="emailLoginForm">
-      <input type="email" id="emailInput" placeholder="Email" required />
-      <input type="password" id="passwordInput" placeholder="Password" required />
-      <button type="submit">Continue</button>
-    </form>
-
-    <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid #444;" />
-
-    <button class="google-signin" id="googleLoginBtn">
-      <img src="/images/google-icon.png" alt="Google" />
-      Sign in with Google
-    </button>
-  </div>
-</div>
-
-  <!-- Email Login Modal -->
-  <div id="emailLoginModal" class="modal">
-    <div class="modal-content">
-      <span class="close" id="closeEmailLogin">&times;</span>
-      <h2>Email Login</h2>
-      <form id="emailLoginForm">
-        <input type="email" id="emailInput" placeholder="Email" required>
-        <input type="password" id="passwordInput" placeholder="Password" required>
-        <button type="submit">Login</button>
+  <div class="modal" id="authModal">
+    <div class="modal-box">
+      <h2>Login or Register</h2>
+      <div class="modal-tabs">
+        <button class="active" onclick="switchTab('login')">Login</button>
+        <button onclick="switchTab('register')">Register</button>
+      </div>
+      <form id="authForm">
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Continue</button>
       </form>
-      <p style="text-align:center; margin-top:1rem;">Don't have an account? <a href="#" id="createAccountLink">Create one</a></p>
+      <div class="google-signin" onclick="signInWithGoogle()">Sign in with Google</div>
     </div>
   </div>
 
-  <!-- Firebase CDN (Compat version for browser) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <main>
+    <div class="page-section" id="dashboardPage">Welcome to Cobraz!<br>Your ID: <span id="userId">abc123</span></div>
+    <div class="page-section hidden" id="sendPage">Send Tokens</div>
+    <div class="page-section hidden" id="receivePage">Receive Tokens<br>Your ID: <span id="receiveId"></span></div>
+    <div class="page-section hidden" id="historyPage">Transaction History:<ul id="txHistory"><li>Sent 100 to xyz789</li><li>Received 50 from qrs456</li></ul></div>
+    <div class="page-section hidden" id="leaderboardPage">Top Users</div>
+  </main>
 
-  <!-- Firebase & Auth logic -->
-  <script src="/js/firebase.js"></script>
-  <script src="/js/auth.js"></script>
   <script>
-    document.getElementById('getStartedBtn').addEventListener('click', () => {
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          window.location.href = '/dashboard.html';
-        } else {
-          alert('Please login first.');
-        }
-      });
-    });
+    const menu = document.getElementById('menu');
+    const modal = document.getElementById('authModal');
 
-    const modal = document.getElementById("emailLoginModal");
-    const openBtn = document.getElementById("openEmailLogin");
-    const closeBtn = document.getElementById("closeEmailLogin");
+    function toggleMenu() {
+      menu.classList.toggle('show');
+    }
 
-    openBtn.onclick = () => modal.style.display = "block";
-    closeBtn.onclick = () => modal.style.display = "none";
-    window.onclick = e => { if (e.target == modal) modal.style.display = "none"; };
+    function openModal() {
+      modal.classList.add('show');
+    }
 
-    // Email Login Logic
-    document.getElementById("emailLoginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("emailInput").value;
-      const password = document.getElementById("passwordInput").value;
-      try {
-        const result = await auth.signInWithEmailAndPassword(email, password);
-        const user = result.user;
-        window.location.href = "/dashboard.html";
-      } catch (err) {
-        if (err.code === 'auth/user-not-found') {
-          // Auto-create account
-          try {
-            const result = await auth.createUserWithEmailAndPassword(email, password);
-            const user = result.user;
-            const userRef = db.collection("users").doc(user.uid);
-            await userRef.set({
-              username: email.split('@')[0],
-              email: email,
-              cobrazBalance: 100,
-              cobrazAddress: generateCobrazAddress(),
-              joinDate: new Date(),
-              isAdmin: false
-            });
-            alert("Account created successfully!");
-            window.location.href = "/dashboard.html";
-          } catch (createErr) {
-            alert("Error: " + createErr.message);
-          }
-        } else {
-          alert("Login failed: " + err.message);
-        }
+    function switchTab(tab) {
+      document.querySelectorAll('.modal-tabs button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.modal-tabs button[onclick*="${tab}"]`).classList.add('active');
+      document.getElementById('authForm').innerHTML = tab === 'login' ? `
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+      ` : `
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="submit">Register</button>
+      `;
+    }
+
+    function signInWithGoogle() {
+      alert('Google login will be here');
+    }
+
+    function showPage(page) {
+      document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(page + 'Page').classList.remove('hidden');
+      if (page === 'receive') {
+        document.getElementById('receiveId').textContent = document.getElementById('userId').textContent;
       }
-    });
+    }
   </script>
 </body>
 </html>
