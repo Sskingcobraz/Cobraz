@@ -4,44 +4,78 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Receive Cobraz</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
 <body>
-  <div class="neon-background"></div>
   <header>
-    <div class="logo">
-      <img src="/images/cobraz-coin.png" alt="Cobraz Coin">
-      <h1>COBRAZ</h1>
+    <div class="logo" onclick="window.location.href='/'">
+      <img src="/images/cobraz-coin.png" alt="Cobraz Coin" class="logo-img">
+      <span class="logo-text">COBRAZ</span>
     </div>
-    <nav>
-      <ul>
-        <li><a href="/dashboard.html">Dashboard</a></li>
-        <li><a href="/send.html">Send</a></li>
-        <li><a href="/receive.html">Receive</a></li>
-        <li><a href="/leaderboard.html">Leaderboard</a></li>
-        <li><a href="/profile.html">Profile</a></li>
-        <li><a href="#" id="logoutBtn">Logout</a></li>
-      </ul>
-    </nav>
+    
+    <div class="nav-links" id="navLinks">
+      <button id="signOutBtn" class="sign-out" style="display: none;">Sign Out</button>
+    </div>
+    
+    <div class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
   </header>
 
   <main class="container">
     <div class="receive-card">
-      <h2>Receive Cobraz</h2>
-      <div id="qrCode"></div>
-      <div class="cobraz-address" id="cobrazAddress">Loading...</div>
-      <button class="copy-btn" id="copyAddressBtn" data-address="">Copy Address</button>
-      <p>Share this address with others to receive Cobraz</p>
+      <h2>Your Cobraz Address</h2>
+      <div id="qrCode" class="qr-code"></div>
+      <div id="cobrazAddress" class="address-display">Loading...</div>
+      <button id="copyAddressBtn" class="copy-btn">Copy Address</button>
+      <p>Share this address to receive Cobraz tokens</p>
     </div>
   </main>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="/js/firebase.js"></script>
-  <script src="/js/auth.js"></script>
-  <script src="/js/transactions.js"></script>
+  <script type="module" src="/js/auth.js"></script>
+  <script type="module">
+    import { auth, db, doc, getDoc } from '/js/firebase.js';
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      // Get user data
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const addressDisplay = document.getElementById('cobrazAddress');
+        const copyBtn = document.getElementById('copyAddressBtn');
+        
+        // Display address
+        addressDisplay.textContent = userData.cobrazAddress;
+        
+        // Generate QR code
+        new QRCode(document.getElementById('qrCode'), {
+          text: userData.cobrazAddress,
+          width: 180,
+          height: 180,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Copy address functionality
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(userData.cobrazAddress);
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy Address';
+          }, 2000);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
