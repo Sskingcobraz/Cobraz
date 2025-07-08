@@ -119,10 +119,6 @@ nav ul li a {
     display: block;
   }
 }
-nav ul.show {
-  display: flex !important;
-}
-
 
 /* Sticky header */
 header {
@@ -488,17 +484,3 @@ input:focus {
 .copy-btn:hover {
   background: var(--secondary);
 }
-
-nav ul {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-}
-
-nav ul.show {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: all;
-}
-
