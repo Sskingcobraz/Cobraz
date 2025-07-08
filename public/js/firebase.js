@@ -1,22 +1,20 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup 
-} from "https://www.gstatic.com/firebasejs/9.6.0/firebase-auth.js";
-
+// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCQ3HiYLafcgfKDrVXzeP5tVGd3ephui5M",
-  authDomain: "cobraz69.firebaseapp.com",
-  projectId: "cobraz69",
-  storageBucket: "cobraz69.firebasestorage.app",
-  messagingSenderId: "966165847096",
-  appId: "1:966165847096:web:7a131aae701d3a752b1acd"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const storage = firebase.storage();
 
-export { auth, provider, signInWithPopup };
+// Firestore settings
+db.settings({
+  merge: true
+});
