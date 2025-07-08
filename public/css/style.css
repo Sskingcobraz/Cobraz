@@ -119,6 +119,10 @@ nav ul li a {
     display: block;
   }
 }
+nav ul.show {
+  display: flex !important;
+}
+
 
 /* Sticky header */
 header {
