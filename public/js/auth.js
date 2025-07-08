@@ -15,45 +15,96 @@ function generateCobrazAddress() {
 async function handleGoogleSignIn() {
   try {
     const result = await auth.signInWithPopup(provider);
-    const user = result.user;
-
-    const userRef = db.collection("users").doc(user.uid);
-    const docSnapshot = await userRef.get();
-
-    if (!docSnapshot.exists) {
-      await userRef.set({
-        username: user.displayName || 'User',
-        email: user.email,
-        cobrazBalance: 100,
-        cobrazAddress: generateCobrazAddress(),
-        joinDate: new Date(),
-        isAdmin: false
-      });
-    }
-
+    await createUserDoc(result.user);
     window.location.href = '/dashboard.html';
   } catch (error) {
-    console.error("Login failed:", error);
-    alert("Login failed: " + error.message);
+    alert("Google Login failed: " + error.message);
   }
 }
 
-// Initialize auth state monitoring
-function initAuthState() {
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      console.log("Logged in as:", user.email);
+// Handle Email/Password Sign-In or Sign-Up
+async function handleEmailLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('emailInput').value;
+  const password = document.getElementById('passwordInput').value;
+
+  try {
+    // Try sign-in first
+    const result = await auth.signInWithEmailAndPassword(email, password);
+    window.location.href = '/dashboard.html';
+  } catch (err) {
+    if (err.code === 'auth/user-not-found') {
+      // Auto-create account
+      try {
+        const result = await auth.createUserWithEmailAndPassword(email, password);
+        await createUserDoc(result.user, email.split('@')[0]);
+        alert("Account created!");
+        window.location.href = '/dashboard.html';
+      } catch (error) {
+        alert("Sign-up failed: " + error.message);
+      }
     } else {
-      console.log("Not logged in");
+      alert("Login failed: " + err.message);
+    }
+  }
+}
+
+// Create user doc in Firestore
+async function createUserDoc(user, defaultName = 'User') {
+  const userRef = db.collection("users").doc(user.uid);
+  const snapshot = await userRef.get();
+
+  if (!snapshot.exists) {
+    await userRef.set({
+      username: user.displayName || defaultName,
+      email: user.email,
+      cobrazBalance: 100,
+      cobrazAddress: generateCobrazAddress(),
+      joinDate: new Date(),
+      isAdmin: false
+    });
+  }
+}
+
+// Auth state handling
+function initAuthState() {
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  auth.onAuthStateChanged(user => {
+    if (user && window.location.pathname === "/index.html") {
+      window.location.href = "/dashboard.html";
     }
   });
 }
 
-// Initialize events
+// Modal handling
+function initModal() {
+  const modal = document.getElementById('loginModal');
+  const openBtn = document.getElementById('loginBtn');
+  const closeBtn = document.getElementById('closeModal');
+  const emailForm = document.getElementById('emailLoginForm');
+
+  if (openBtn && modal) {
+    openBtn.addEventListener('click', () => modal.style.display = 'block');
+  }
+
+  if (closeBtn && modal) {
+    closeBtn.addEventListener('click', () => modal.style.display = 'none');
+  }
+
+  if (emailForm) {
+    emailForm.addEventListener('submit', handleEmailLogin);
+  }
+
+  window.onclick = (e) => {
+    if (e.target === modal) modal.style.display = 'none';
+  };
+}
+
+// Init
 document.addEventListener("DOMContentLoaded", () => {
   initAuthState();
-  const loginBtn = document.getElementById("loginBtn");
-  if (loginBtn) {
-    loginBtn.addEventListener("click", handleGoogleSignIn);
-  }
+  initModal();
+
+  const googleBtn = document.getElementById("googleLoginBtn");
+  if (googleBtn) googleBtn.addEventListener("click", handleGoogleSignIn);
 });
